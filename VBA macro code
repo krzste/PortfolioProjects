@@ -1,0 +1,119 @@
+Description:
+
+The code appears to perform a series of find-and-replace operations, copy
+and paste operations, and trimming of values in column K of the active worksheet.
+The code also inserts a new column, concatenates columns M and L, performs
+additional string manipulations, and finally deletes several columns.
+
+I use this macro every day in my current job.
+
+
+Sub ReplaceAndRemoveCharacters()
+
+Dim rng As Range
+
+
+Set rng = ActiveSheet.Range("K:K")
+
+
+ rng.Replace "$", "USD"
+
+ rng.Replace "€", "EUR"
+
+ rng.Replace "&", "AND"
+
+ rng.Replace "@", "AT"
+
+ rng.Replace "+", "plus"
+
+ rng.Replace "%", "percent"
+
+ rng.Replace ";", ""
+
+ rng.Replace "#", ""
+
+ rng.Replace "!", ""
+
+ rng.Replace "^", ""
+
+ rng.Replace "_", " "
+
+ rng.Replace "'", ""
+
+ rng.Replace """", ""
+
+ rng.Replace "/REF/", ""
+
+ rng.Replace ",", " "
+
+
+rng.Copy
+
+rng.PasteSpecial xlPasteValues
+
+
+ActiveSheet.Range("K:K").Copy
+
+ActiveSheet.Range("L1").PasteSpecial xlPasteFormulas
+
+ActiveSheet.Range("L1").Formula = "=TRIM(K1)"
+
+ActiveSheet.Range("L1").AutoFill Destination:=ActiveSheet.Range("L1:L" & ActiveSheet.Range("K" & Rows.Count).End(xlUp).Row) 
+
+ActiveSheet.Range("M1:M" & ActiveSheet.Range("K" & Rows.Count).End(xlUp).Row).Value = "/BNF/"
+
+ActiveSheet.Range("N1").Formula = "=M1 & L1"
+
+ActiveSheet.Range("N1").AutoFill Destination:=ActiveSheet.Range("N1:N" & ActiveSheet.Range("K" & Rows.Count).End(xlUp).Row)
+
+Set rng = ActiveSheet.Range("N1:N" & ActiveSheet.Range("N" & Rows.Count).End(xlUp).Row)
+
+For Each cell In rng
+
+If Len(cell.Value) > 34 Then
+
+cell.Offset(0, 1).Value = "/" & Right(cell.Value, Len(cell.Value) - 34)
+
+cell.Value = Left(cell.Value, 34)
+
+
+End If
+
+
+Next cell
+
+
+ActiveSheet.Range("N1:N" & ActiveSheet.Range("N" & Rows.Count).End(xlUp).Row).Copy
+
+ActiveSheet.Range("F1:F" & ActiveSheet.Range("F" & Rows.Count).End(xlUp).Row).PasteSpecial xlPasteValues
+
+ActiveSheet.Range("O1:O" & ActiveSheet.Range("O" & Rows.Count).End(xlUp).Row).Cut
+
+ActiveSheet.Range("G1").Insert Shift:=xlDown
+
+ActiveSheet.Range("K1:K" & ActiveSheet.Range("K" & Rows.Count).End(xlUp).Row).ClearContents
+
+ActiveSheet.Range("L1:L" & ActiveSheet.Range("L" & Rows.Count).End(xlUp).Row).ClearContents
+
+ActiveSheet.Range("M1:M" & ActiveSheet.Range("M" & Rows.Count).End(xlUp).Row).ClearContents
+
+ActiveSheet.Range("N1:N" & ActiveSheet.Range("N" & Rows.Count).End(xlUp).Row).ClearContents
+
+ActiveSheet.Range("F1:F" & ActiveSheet.Range("F" & Rows.Count).End(xlUp).Row).Copy
+
+ActiveSheet.Range("F1:F" & ActiveSheet.Range("F" & Rows.Count).End(xlUp).Row).PasteSpecial xlPasteValues
+
+
+Columns("K:K").Delete
+
+Columns("L:L").Delete
+
+Columns("M:M").Delete
+
+Columns("N:N").Delete
+
+Columns("O:O").Delete
+
+ActiveWorkbook.Save
+
+End Sub
